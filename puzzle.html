@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>クロスワード</title>
-
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -20,6 +18,11 @@
     </a>
 
     <h1 id="puzzleTitle"></h1>
+
+    <section
+      id="puzzleDescription"
+      class="puzzle-description hidden"
+    ></section>
 
     <section class="active-clue-section">
       <div id="activeClueDisplay" class="active-clue-display">
@@ -54,12 +57,12 @@
 
       <div class="hint-columns">
         <section>
-          <h3>ヨコのカギ</h3>
+          <h3 id="acrossHintTitle">ヨコのカギ</h3>
           <ul id="acrossHints"></ul>
         </section>
 
         <section>
-          <h3>タテのカギ</h3>
+          <h3 id="downHintTitle">タテのカギ</h3>
           <ul id="downHints"></ul>
         </section>
       </div>
@@ -84,17 +87,12 @@
     </section>
   </main>
 
-  <!-- キーボード表示中の背景。タップすると閉じる -->
   <div
     id="keyboardBackdrop"
     class="keyboard-backdrop hidden"
     aria-hidden="true"
   ></div>
 
-  <!--
-    レイアウト内に入れるとiPhone Safariで固定位置が崩れることがあるため、
-    body直下に置く
-  -->
   <section
     id="keyboardPanel"
     class="keyboard-panel hidden"
@@ -129,13 +127,17 @@
     <div id="customKeyboard" class="custom-keyboard"></div>
   </section>
 
-  <!-- 問題データ。問題を増やすたびに追加 -->
+  <!-- 問題データ -->
   <script src="puzzles/1.small/00001summer-3x3-1.js"></script>
   <script src="puzzles/1.small/00002birthday-5x5-1.js"></script>
+  <script src="puzzles/5.gimmick/00003yaminabe-3x3-1.js"></script>
 
-  <!-- タイプ別処理 -->
+  <!-- 共通キーボード -->
+  <script src="scripts/keyboard.js"></script>
+
+  <!-- 問題タイプ別処理 -->
   <script src="scripts/normal.js"></script>
-  <script src="scripts/gimmick.js"></script>
+  <script src="scripts/gimmick/yaminabe.js"></script>
   <script src="scripts/cube.js"></script>
 
   <!-- 共通処理 -->

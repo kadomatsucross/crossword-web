@@ -1,4 +1,6 @@
-const summer3x3_1 = {
+window.puzzles = window.puzzles || [];
+
+window.puzzles.push({
   id: "00001",
   type: "normal",
   category: "1.small",
@@ -32,11 +34,10 @@ const summer3x3_1 = {
       "4. 空でサソリを倒すんだ",
       "5. よく水切りで遊んだなあ"
     ],
-
     down: [
       "1. 写真を撮ったらカニと[???]になった",
       "2. 今期は仕事頑張ったからボーナスのこれがいいはず",
       "3. 強くて熱中症になりそう"
     ]
   }
-};
+});

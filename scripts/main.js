@@ -1,3 +1,6 @@
+window.PuzzleTypes = window.PuzzleTypes || {};
+window.puzzles = window.puzzles || [];
+
 const categories = [
   { id: "1.small", name: "小規模クロスワード" },
   { id: "2.medium", name: "中規模クロスワード" },
@@ -7,22 +10,6 @@ const categories = [
   { id: "6.english", name: "英語クロスワード" }
 ];
 
-// 読み込まれた問題だけを登録する
-const puzzles = [];
-
-if (typeof summer3x3_1 !== "undefined") {
-  puzzles.push(summer3x3_1);
-}
-
-if (typeof birthday5x5_1 !== "undefined") {
-  puzzles.push(birthday5x5_1);
-}
-
-if (typeof cube2x2x2_1 !== "undefined") {
-  puzzles.push(cube2x2x2_1);
-}
-
-// puzzle.html と normal.js から利用するDOM
 const puzzleTitle = document.getElementById("puzzleTitle");
 const crossword = document.getElementById("crossword");
 const acrossHints = document.getElementById("acrossHints");
@@ -34,26 +21,13 @@ const resetButton = document.getElementById("resetButton");
 
 let currentPuzzle = null;
 
-function getPageName() {
-  return document.body.dataset.page || "";
-}
-
 function getUrlParameters() {
   return new URLSearchParams(window.location.search);
 }
 
-function getPuzzleId(puzzle) {
-  if (puzzle.id) {
-    return String(puzzle.id);
-  }
-
-  const titleMatch = String(puzzle.title || "").match(/^(\d+)/);
-  return titleMatch ? titleMatch[1] : "";
-}
-
 function getPuzzleById(id) {
-  return puzzles.find(function(puzzle) {
-    return getPuzzleId(puzzle) === String(id);
+  return window.puzzles.find(function(puzzle) {
+    return String(puzzle.id) === String(id);
   });
 }
 
@@ -67,7 +41,7 @@ function sortPuzzlesByTitle(targetPuzzles) {
 }
 
 function getPuzzleStorageKey(puzzle) {
-  return `cleared_${getPuzzleId(puzzle) || puzzle.title}`;
+  return `cleared_${puzzle.id}`;
 }
 
 function markPuzzleAsCleared(puzzle) {
@@ -78,34 +52,21 @@ function isPuzzleCleared(puzzle) {
   return localStorage.getItem(getPuzzleStorageKey(puzzle)) === "true";
 }
 
-// ==============================
-// search.html
-// ==============================
 function initializeSearchPage() {
-  const params = getUrlParameters();
-  const mode = params.get("mode") === "category" ? "category" : "all";
+  const mode =
+    getUrlParameters().get("mode") === "category"
+      ? "category"
+      : "all";
 
   const pageTitle = document.getElementById("searchPageTitle");
   const categorySection = document.getElementById("categorySection");
   const categoryList = document.getElementById("categoryList");
-  const puzzleListSection = document.getElementById("puzzleListSection");
+  const puzzleListSection =
+    document.getElementById("puzzleListSection");
   const puzzleList = document.getElementById("puzzleList");
   const listTitle = document.getElementById("listTitle");
-  const backToCategoriesButton = document.getElementById(
-    "backToCategoriesButton"
-  );
-
-  if (
-    !pageTitle ||
-    !categorySection ||
-    !categoryList ||
-    !puzzleListSection ||
-    !puzzleList ||
-    !listTitle ||
-    !backToCategoriesButton
-  ) {
-    return;
-  }
+  const backButton =
+    document.getElementById("backToCategoriesButton");
 
   function showCategories() {
     pageTitle.textContent = "カテゴリから探す";
@@ -129,20 +90,17 @@ function initializeSearchPage() {
 
   function showCategoryPuzzles(category) {
     const targetPuzzles = sortPuzzlesByTitle(
-      puzzles.filter(function(puzzle) {
+      window.puzzles.filter(function(puzzle) {
         return puzzle.category === category.id;
       })
     );
 
-    pageTitle.textContent = "カテゴリから探す";
     categorySection.classList.add("hidden");
     puzzleListSection.classList.remove("hidden");
-    backToCategoriesButton.classList.remove("hidden");
+    backButton.classList.remove("hidden");
     listTitle.textContent = category.name;
 
-    renderPuzzleList(targetPuzzles, {
-      listElement: puzzleList,
-      emptyText: "このカテゴリにはまだ問題がありません。",
+    renderPuzzleList(targetPuzzles, puzzleList, {
       from: "category",
       categoryId: category.id
     });
@@ -152,18 +110,17 @@ function initializeSearchPage() {
     pageTitle.textContent = "一覧から探す";
     categorySection.classList.add("hidden");
     puzzleListSection.classList.remove("hidden");
-    backToCategoriesButton.classList.add("hidden");
+    backButton.classList.add("hidden");
     listTitle.textContent = "クロスワード一覧";
 
-    renderPuzzleList(sortPuzzlesByTitle(puzzles), {
-      listElement: puzzleList,
-      emptyText: "クロスワードがまだありません。",
-      from: "all",
-      categoryId: ""
-    });
+    renderPuzzleList(
+      sortPuzzlesByTitle(window.puzzles),
+      puzzleList,
+      { from: "all", categoryId: "" }
+    );
   }
 
-  backToCategoriesButton.addEventListener("click", showCategories);
+  backButton.addEventListener("click", showCategories);
 
   if (mode === "category") {
     showCategories();
@@ -172,14 +129,13 @@ function initializeSearchPage() {
   }
 }
 
-function renderPuzzleList(targetPuzzles, options) {
-  const listElement = options.listElement;
+function renderPuzzleList(targetPuzzles, listElement, options) {
   listElement.innerHTML = "";
 
   if (targetPuzzles.length === 0) {
     const emptyMessage = document.createElement("p");
     emptyMessage.className = "empty-message";
-    emptyMessage.textContent = options.emptyText;
+    emptyMessage.textContent = "このカテゴリにはまだ問題がありません。";
     listElement.appendChild(emptyMessage);
     return;
   }
@@ -190,7 +146,7 @@ function renderPuzzleList(targetPuzzles, options) {
     link.textContent = puzzle.title;
 
     const url = new URL("puzzle.html", window.location.href);
-    url.searchParams.set("id", getPuzzleId(puzzle));
+    url.searchParams.set("id", puzzle.id);
     url.searchParams.set("from", options.from);
 
     if (options.categoryId) {
@@ -207,112 +163,79 @@ function renderPuzzleList(targetPuzzles, options) {
   });
 }
 
-// ==============================
-// puzzle.html
-// ==============================
 function initializePuzzlePage() {
   const params = getUrlParameters();
-  const puzzleId = params.get("id");
   const backLink = document.getElementById("backToSearchLink");
 
-  if (backLink) {
-    if (params.get("from") === "category") {
-      backLink.href = "search.html?mode=category";
-      backLink.textContent = "カテゴリに戻る";
-    } else {
-      backLink.href = "search.html?mode=all";
-      backLink.textContent = "一覧に戻る";
-    }
+  if (params.get("from") === "category") {
+    backLink.href = "search.html?mode=category";
+    backLink.textContent = "カテゴリに戻る";
   }
 
-  currentPuzzle = getPuzzleById(puzzleId);
+  currentPuzzle = getPuzzleById(params.get("id"));
 
   if (!currentPuzzle) {
-    if (puzzleTitle) {
-      puzzleTitle.textContent = "問題が見つかりません";
-    }
-
-    if (message) {
-      message.textContent =
-        "URLの問題番号、またはindex内の問題ファイル読み込みを確認してください。";
-    }
-
+    puzzleTitle.textContent = "問題が見つかりません";
+    message.textContent =
+      "問題IDか、問題ファイルの読み込みを確認してください。";
     return;
   }
 
   document.title = `${currentPuzzle.title} | クロスワードWeb`;
+
+  if (window.CrosswordKeyboard) {
+    window.CrosswordKeyboard.initialize();
+  }
+
   renderCurrentPuzzle();
 
-  if (checkButton) {
-    checkButton.addEventListener("click", checkCurrentPuzzleAnswer);
-  }
+  checkButton.addEventListener("click", checkCurrentPuzzleAnswer);
+  resetButton.addEventListener("click", resetCurrentPuzzle);
+}
 
-  if (resetButton) {
-    resetButton.addEventListener("click", renderCurrentPuzzle);
-  }
+function getCurrentPuzzleHandler() {
+  if (!currentPuzzle) return null;
+  return window.PuzzleTypes[currentPuzzle.type] || null;
 }
 
 function renderCurrentPuzzle() {
-  if (!currentPuzzle) {
-    return;
-  }
+  const handler = getCurrentPuzzleHandler();
 
-  if (currentPuzzle.type === "normal") {
-    renderNormalPuzzle(currentPuzzle);
-    return;
-  }
-
-  if (currentPuzzle.type === "gimmick") {
-    if (typeof renderGimmickPuzzle === "function") {
-      renderGimmickPuzzle(currentPuzzle);
-    } else if (message) {
-      message.textContent = "ギミッククロスワードはまだ未実装です。";
-    }
-    return;
-  }
-
-  if (currentPuzzle.type === "cube") {
-    if (typeof renderCubePuzzle === "function") {
-      renderCubePuzzle(currentPuzzle);
-    } else if (message) {
-      message.textContent = "立体クロスワードはまだ未実装です。";
-    }
-    return;
-  }
-
-  if (message) {
+  if (!handler || typeof handler.render !== "function") {
     message.textContent = "未対応のクロスワードタイプです。";
+    return;
   }
+
+  handler.render(currentPuzzle);
 }
 
 function checkCurrentPuzzleAnswer() {
-  if (!currentPuzzle) {
+  const handler = getCurrentPuzzleHandler();
+
+  if (!handler || typeof handler.check !== "function") {
+    message.textContent = "答え合わせに対応していません。";
     return;
   }
 
-  if (
-    currentPuzzle.type === "normal" &&
-    typeof checkNormalAnswer === "function"
-  ) {
-    checkNormalAnswer(currentPuzzle);
-    return;
-  }
+  handler.check(currentPuzzle);
+}
 
-  if (message) {
-    message.textContent =
-      "このタイプの答え合わせはまだ実装されていません。";
+function resetCurrentPuzzle() {
+  const handler = getCurrentPuzzleHandler();
+
+  if (handler && typeof handler.reset === "function") {
+    handler.reset(currentPuzzle);
+  } else {
+    renderCurrentPuzzle();
   }
 }
 
-// ==============================
-// 起動
-// ==============================
-const currentPage = getPageName();
+const page = document.body.dataset.page;
 
-if (currentPage === "search") {
+if (page === "search") {
   initializeSearchPage();
 }
 
-if (currentPage === "puzzle") {
+if (page === "puzzle") {
   initializePuzzlePage();
 }

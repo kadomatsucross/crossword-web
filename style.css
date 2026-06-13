@@ -740,215 +740,45 @@ h1 {
   }
 }
 
-/* =========================================================
-   スマホ用フリックキーボード最終調整
-   ========================================================= */
+/* ========================================
+   闇鍋クロスワード
+======================================== */
 
-.keyboard-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 8998;
-  background: rgba(0, 0, 0, 0.12);
+.puzzle-description {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto 24px;
+  padding: 18px 20px;
+  box-sizing: border-box;
+  line-height: 1.8;
+  background: #f7f7f7;
+  border: 1px solid #ccc;
+  border-radius: 12px;
 }
 
-.keyboard-drag-handle {
+.puzzle-description h2 {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+}
+
+.puzzle-description p {
+  margin: 0;
+}
+
+.puzzle-description.hidden {
   display: none;
 }
 
-.flick-navigation-row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
-  margin-top: 5px;
+.yaminabe-clue {
+  padding: 14px !important;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  background: #f6f6f6;
+  border: 1px solid #bbb;
+  border-radius: 10px;
 }
 
-@media (max-width: 900px), (pointer: coarse) {
-  body.keyboard-open {
-    overflow-x: hidden;
-  }
-
-  body.keyboard-open .puzzle-page {
-    padding-bottom: 330px;
-  }
-
-  .keyboard-backdrop {
-    background: rgba(0, 0, 0, 0.08);
-  }
-
-  #keyboardPanel.keyboard-panel {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    bottom: 0 !important;
-    z-index: 8999 !important;
-
-    width: 100% !important;
-    height: 300px !important;
-    max-height: min(42svh, 300px) !important;
-
-    margin: 0 !important;
-    padding:
-      0
-      max(8px, env(safe-area-inset-right))
-      env(safe-area-inset-bottom)
-      max(8px, env(safe-area-inset-left)) !important;
-
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-
-    background: #f7f7f7;
-    border: none !important;
-    border-radius: 16px 16px 0 0 !important;
-    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.25);
-  }
-
-  #keyboardPanel.hidden,
-  #keyboardBackdrop.hidden {
-    display: none !important;
-  }
-
-  .keyboard-drag-handle {
-    display: block;
-    flex: 0 0 auto;
-    width: 38px;
-    height: 5px;
-    margin: 6px auto 2px;
-    background: #b8b8b8;
-    border-radius: 999px;
-  }
-
-  .keyboard-panel-header {
-    position: relative !important;
-    top: auto !important;
-    z-index: 3;
-    flex: 0 0 34px;
-    min-height: 34px !important;
-    margin: 0 !important;
-    padding: 2px 4px !important;
-    background: #f7f7f7;
-    border-bottom: 1px solid #ddd;
-  }
-
-  .keyboard-panel-header strong {
-    font-size: 13px;
-  }
-
-  .close-keyboard-button {
-    position: relative !important;
-    z-index: 4 !important;
-    min-width: 68px;
-    min-height: 28px !important;
-    margin: 0 !important;
-    padding: 2px 10px !important;
-    font-size: 13px !important;
-    touch-action: manipulation;
-  }
-
-  .keyboard-mode-area {
-    flex: 0 0 30px;
-    min-height: 30px;
-    padding: 1px 4px !important;
-    background: #f7f7f7;
-    border-bottom: 1px solid #ddd;
-  }
-
-  .keyboard-mode-area span {
-    font-size: 11px;
-  }
-
-  .keyboard-mode-area button {
-    min-height: 24px !important;
-    margin: 1px 2px !important;
-    padding: 1px 8px !important;
-    font-size: 11px !important;
-  }
-
-  .custom-keyboard {
-    flex: 1 1 auto;
-    min-height: 0;
-    margin: 0 !important;
-    padding: 5px 18px 7px !important;
-    overflow: hidden !important;
-    background: #dedede !important;
-    border: none !important;
-    border-radius: 0 !important;
-  }
-
-  /* スマホ標準に近い3列×4段 */
-  .flick-keys {
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 4px !important;
-    width: min(100%, 390px);
-    margin: 0 auto;
-  }
-
-  .flick-key {
-    width: 100%;
-    height: 38px !important;
-    min-height: 38px !important;
-    margin: 0 !important;
-    padding: 1px !important;
-    font-size: 16px !important;
-    border-radius: 7px !important;
-    background: #fff;
-    border: 1px solid #777;
-  }
-
-  .flick-utility-key {
-    font-size: 13px !important;
-  }
-
-  .flick-navigation-row {
-    width: min(100%, 390px);
-    margin: 4px auto 0;
-    gap: 4px;
-  }
-
-  .flick-navigation-row .keyboard-control-key {
-    min-height: 28px !important;
-    margin: 0 !important;
-    padding: 1px !important;
-    font-size: 13px !important;
-  }
-
-  /* 50音表示時だけ縦スクロールを許可 */
-  .custom-keyboard.grid-keyboard {
-    overflow-y: auto !important;
-  }
-
-  .kana-key,
-  .keyboard-control-key {
-    min-height: 27px !important;
-    margin: 1px !important;
-    padding: 1px !important;
-    font-size: 11px !important;
-  }
-
-  .flick-preview {
-    z-index: 9100;
-    transform: translate(-50%, -112%);
-  }
-}
-
-@media (min-width: 901px) and (pointer: fine) {
-  #keyboardPanel.keyboard-panel {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-    z-index: 8999;
-    width: 430px;
-    max-height: calc(100vh - 40px);
-    overflow-y: auto;
-  }
-
-  .keyboard-backdrop {
-    display: none !important;
-  }
-
-  .flick-keys {
-    grid-template-columns: repeat(3, 1fr);
-  }
+.yaminabe-clue.selected-clue {
+  background: #fff0a8;
+  border-color: #c99100;
 }
