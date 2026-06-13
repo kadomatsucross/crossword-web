@@ -1,0 +1,651 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  color: #222;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: #ececec;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: #ececec;
+}
+
+button,
+a,
+textarea,
+input {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.page-shell {
+  width: min(1100px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0 48px;
+}
+
+h1 {
+  margin: 0 0 28px;
+  text-align: center;
+}
+
+.back-link {
+  display: inline-flex;
+  margin-bottom: 20px;
+  padding: 10px 14px;
+  color: #222;
+  text-decoration: none;
+  background: white;
+  border: 1px solid #555;
+  border-radius: 8px;
+}
+
+/* トップ */
+.home-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.home-menu {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.home-menu-button {
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  color: #222;
+  text-align: center;
+  text-decoration: none;
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 800;
+  background: white;
+  border: 3px solid #333;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s, background 0.15s;
+}
+
+.home-menu-button:hover {
+  transform: translateY(-3px);
+  background: #fff7cc;
+}
+
+/* 検索 */
+.selection-list {
+  width: min(620px, 100%);
+  margin: 24px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.selection-button {
+  width: 100%;
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 14px 18px;
+  color: #222;
+  text-align: center;
+  text-decoration: none;
+  font-size: 18px;
+  background: white;
+  border: 2px solid #333;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.selection-button:hover {
+  background: #fff7cc;
+}
+
+.selection-button.cleared {
+  background: #d9f8dc;
+  border-color: #2d7d46;
+}
+
+.selection-button.cleared::after {
+  content: " ✓";
+  margin-left: 8px;
+  font-weight: 800;
+}
+
+.secondary-button {
+  display: block;
+  margin: 0 auto 16px;
+  padding: 10px 14px;
+  background: white;
+  border: 1px solid #555;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#listTitle {
+  text-align: center;
+}
+
+.empty-message {
+  text-align: center;
+}
+
+/* 個別問題 */
+.active-clue-section {
+  width: min(900px, 100%);
+  margin: 0 auto 14px;
+}
+
+.active-clue-display {
+  min-height: 58px;
+  padding: 13px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 800;
+  line-height: 1.5;
+  background: white;
+  border: 2px solid #c99100;
+  border-radius: 10px;
+}
+
+#normalGameLayout {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(340px, 430px);
+  gap: 24px;
+  align-items: start;
+}
+
+#normalBoardPanel,
+#normalSidePanel {
+  min-width: 0;
+}
+
+#crossword {
+  display: grid;
+  justify-content: center;
+  gap: 2px;
+  margin: 20px 0;
+}
+
+.cell-wrapper,
+.black {
+  width: 50px;
+  height: 50px;
+}
+
+.cell-wrapper {
+  position: relative;
+  background: white;
+  border: 1px solid #111;
+}
+
+.black {
+  background: #111;
+}
+
+.cell {
+  width: 100%;
+  height: 100%;
+  padding-top: 10px;
+  border: none;
+  outline: none;
+  background: transparent;
+  text-align: center;
+  font-size: 24px;
+  caret-color: transparent;
+  cursor: pointer;
+}
+
+.clue-number,
+.word-letter {
+  position: absolute;
+  top: 2px;
+  z-index: 2;
+  font-size: 11px;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.clue-number {
+  left: 4px;
+}
+
+.word-letter {
+  right: 4px;
+  color: #b00000;
+}
+
+.cell-wrapper.active-clue {
+  background: #fff6bd;
+}
+
+.cell-wrapper.current-cell {
+  background: #ffe26a;
+  box-shadow: inset 0 0 0 3px #c99100;
+}
+
+.cell-wrapper.correct {
+  background: #d8f7d8;
+}
+
+.cell-wrapper.incorrect {
+  background: #ffd8d8;
+}
+
+.buttons {
+  margin: 18px 0;
+  text-align: center;
+}
+
+.buttons button,
+.keyboard-mode-area button,
+.user-memo-header button,
+.close-keyboard-button {
+  padding: 9px 14px;
+  margin: 4px;
+  border: 1px solid #555;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+}
+
+#message {
+  min-height: 28px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+/* キーワード */
+.keyword-panel {
+  width: min(560px, 100%);
+  margin: 14px auto;
+  padding: 16px;
+  background: white;
+  border: 2px solid #555;
+  border-radius: 12px;
+}
+
+.keyword-panel .final-word-box {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.keyword-panel .final-word-box h4 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.keyword-panel .final-word-box p {
+  margin: 6px 0 12px;
+  line-height: 1.5;
+}
+
+.final-word-input {
+  width: 100%;
+  max-width: 360px;
+  padding: 10px;
+  text-align: center;
+  font-size: 18px;
+  caret-color: transparent;
+  cursor: pointer;
+}
+
+.final-word-input.keyboard-target {
+  background: #fff6bd;
+  outline: 3px solid #c99100;
+}
+
+.final-word-input.correct {
+  background: #d8f7d8;
+}
+
+.final-word-input.incorrect {
+  background: #ffd8d8;
+}
+
+/* 表示式キーボード */
+.keyboard-panel {
+  position: sticky;
+  top: 18px;
+  padding: 10px;
+  background: white;
+  border: 2px solid #555;
+  border-radius: 12px;
+}
+
+.keyboard-panel-header {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.keyboard-mode-area {
+  padding: 6px 0 10px;
+}
+
+.keyboard-mode-area span {
+  margin-right: 8px;
+  font-weight: 800;
+}
+
+.keyboard-mode-area button.selected {
+  background: #ffe26a;
+  border-color: #c99100;
+}
+
+.custom-keyboard {
+  padding: 10px;
+  background: #f0f0f0;
+  border: 1px solid #aaa;
+  border-radius: 10px;
+  user-select: none;
+}
+
+.kana-grid-row,
+.keyboard-control-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+
+.flick-keys {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.kana-key,
+.flick-key,
+.keyboard-control-key {
+  min-width: 0;
+  min-height: 44px;
+  margin: 2px;
+  padding: 6px;
+  font-weight: 800;
+  background: white;
+  border: 1px solid #777;
+  border-radius: 8px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.flick-key {
+  height: 58px;
+  font-size: 20px;
+  touch-action: none;
+}
+
+.keyboard-control-row {
+  margin-top: 8px;
+}
+
+.kana-key:active,
+.flick-key:active,
+.keyboard-control-key:active {
+  background: #ffe26a;
+}
+
+.kana-key.empty-key,
+.kana-key:disabled,
+.flick-preview span.empty {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* フリック候補 */
+.flick-preview {
+  position: fixed;
+  z-index: 1000;
+  width: 150px;
+  height: 150px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.flick-preview span {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  background: white;
+  border: 2px solid #555;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+}
+
+.flick-preview span.selected {
+  background: #ffe26a;
+  border-color: #c99100;
+}
+
+.flick-preview-center {
+  left: 53px;
+  top: 53px;
+}
+
+.flick-preview-left {
+  left: 4px;
+  top: 53px;
+}
+
+.flick-preview-up {
+  left: 53px;
+  top: 4px;
+}
+
+.flick-preview-right {
+  right: 4px;
+  top: 53px;
+}
+
+.flick-preview-down {
+  left: 53px;
+  bottom: 4px;
+}
+
+/* ヒント */
+.hints {
+  width: min(900px, 100%);
+  margin: 24px auto;
+  padding: 18px 22px;
+  background: white;
+  border-radius: 12px;
+}
+
+.hint-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 30px;
+}
+
+.hints ul {
+  padding-left: 24px;
+}
+
+.hints li {
+  margin-bottom: 6px;
+  padding: 7px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.hints li:hover {
+  background: #eee;
+}
+
+.hints li.selected-clue {
+  background: #fff0a8;
+  font-weight: 800;
+}
+
+/* メモ */
+.user-memo-box {
+  width: min(900px, 100%);
+  margin: 24px auto;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+}
+
+.user-memo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.user-memo-header h2 {
+  margin: 0;
+}
+
+.user-memo {
+  width: 100%;
+  min-height: 120px;
+  margin-top: 10px;
+  padding: 10px;
+  resize: vertical;
+  border: 1px solid #aaa;
+  border-radius: 8px;
+}
+
+.memo-save-status {
+  min-height: 20px;
+  margin: 6px 0 0;
+  color: #666;
+  font-size: 13px;
+}
+
+/* スマホ */
+@media (max-width: 760px) {
+  .page-shell {
+    width: min(100% - 20px, 700px);
+    padding-top: 14px;
+  }
+
+  .home-menu {
+    grid-template-columns: 1fr;
+  }
+
+  .home-menu-button {
+    min-height: 150px;
+  }
+
+  body.keyboard-open .puzzle-page {
+    padding-bottom: 330px;
+  }
+
+  #normalGameLayout {
+    display: block;
+    width: 100%;
+  }
+
+  #normalSidePanel {
+    min-height: 0;
+  }
+
+  .active-clue-section {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    margin-bottom: 8px;
+  }
+
+  .active-clue-display {
+    min-height: 48px;
+    padding: 10px 12px;
+    background: #fffdf1;
+  }
+
+  .keyboard-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 8px max(8px, env(safe-area-inset-right))
+      calc(8px + env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+    border-right: none;
+    border-bottom: none;
+    border-left: none;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -5px 18px rgba(0, 0, 0, 0.2);
+  }
+
+  .cell-wrapper,
+  .black {
+    width: 42px;
+    height: 42px;
+  }
+
+  .cell {
+    padding-top: 8px;
+    font-size: 20px;
+  }
+
+  .clue-number,
+  .word-letter {
+    font-size: 10px;
+  }
+
+  .hint-columns {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .hints,
+  .user-memo-box,
+  .keyword-panel {
+    width: 100%;
+  }
+
+  .flick-key {
+    height: 48px;
+    font-size: 18px;
+  }
+
+  .kana-key,
+  .keyboard-control-key {
+    min-height: 38px;
+    padding: 4px;
+    font-size: 14px;
+  }
+
+  .flick-preview {
+    transform: translate(-50%, -105%);
+  }
+}
+

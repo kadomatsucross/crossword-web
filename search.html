@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>クロスワードを探す</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="search">
+  <main class="page-shell">
+    <a class="back-link" href="index.html">トップに戻る</a>
+
+    <h1 id="searchPageTitle">クロスワードを探す</h1>
+
+    <section id="categorySection" class="hidden">
+      <div id="categoryList" class="selection-list"></div>
+    </section>
+
+    <section id="puzzleListSection" class="hidden">
+      <button id="backToCategoriesButton" class="secondary-button hidden" type="button">
+        カテゴリに戻る
+      </button>
+
+      <h2 id="listTitle"></h2>
+      <div id="puzzleList" class="selection-list"></div>
+    </section>
+  </main>
+
+  <!-- 問題データ。問題を増やすたびに追加 -->
+  <script src="puzzles/1.small/00001summer-3x3-1.js"></script>
+  <script src="puzzles/1.small/00002birthday-5x5-1.js"></script>
+
+  <script src="scripts/main.js"></script>
+</body>
+</html>
