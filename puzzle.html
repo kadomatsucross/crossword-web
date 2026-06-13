@@ -47,40 +47,6 @@
 
         <p id="message"></p>
       </section>
-
-      <aside id="normalSidePanel">
-        <section
-          id="keyboardPanel"
-          class="keyboard-panel hidden"
-          aria-label="文字入力キーボード"
-        >
-          <div class="keyboard-panel-header">
-            <strong>文字入力</strong>
-
-            <button
-              id="closeKeyboardButton"
-              class="close-keyboard-button"
-              type="button"
-            >
-              閉じる
-            </button>
-          </div>
-
-          <div class="keyboard-mode-area">
-            <span>入力方法</span>
-
-            <button id="flickModeButton" type="button">
-              フリック
-            </button>
-
-            <button id="gridModeButton" type="button">
-              50音
-            </button>
-          </div>
-
-          <div id="customKeyboard" class="custom-keyboard"></div>
-        </section>
-      </aside>
     </div>
 
     <section class="hints" id="hintsBox">
@@ -117,6 +83,51 @@
       <p id="memoSaveStatus" class="memo-save-status"></p>
     </section>
   </main>
+
+  <!-- キーボード表示中の背景。タップすると閉じる -->
+  <div
+    id="keyboardBackdrop"
+    class="keyboard-backdrop hidden"
+    aria-hidden="true"
+  ></div>
+
+  <!--
+    レイアウト内に入れるとiPhone Safariで固定位置が崩れることがあるため、
+    body直下に置く
+  -->
+  <section
+    id="keyboardPanel"
+    class="keyboard-panel hidden"
+    aria-label="文字入力キーボード"
+  >
+    <div class="keyboard-drag-handle" aria-hidden="true"></div>
+
+    <div class="keyboard-panel-header">
+      <strong>文字入力</strong>
+
+      <button
+        id="closeKeyboardButton"
+        class="close-keyboard-button"
+        type="button"
+      >
+        閉じる
+      </button>
+    </div>
+
+    <div class="keyboard-mode-area">
+      <span>入力方法</span>
+
+      <button id="flickModeButton" type="button">
+        フリック
+      </button>
+
+      <button id="gridModeButton" type="button">
+        50音
+      </button>
+    </div>
+
+    <div id="customKeyboard" class="custom-keyboard"></div>
+  </section>
 
   <!-- 問題データ。問題を増やすたびに追加 -->
   <script src="puzzles/1.small/00001summer-3x3-1.js"></script>

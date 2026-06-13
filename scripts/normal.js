@@ -113,7 +113,7 @@ function renderNormalPuzzle(puzzle) {
 
   renderHints(puzzle);
   setupKeyboardModeButtons();
-  setupKeyboardCloseButton();
+  setupKeyboardControls();
   renderCustomKeyboard();
   hideCustomKeyboard();
   setupUserMemo(puzzle);
@@ -471,37 +471,106 @@ function moveCurrentCell(offset) {
 // ==============================
 function showCustomKeyboard() {
   const keyboardPanel = document.getElementById("keyboardPanel");
+  const backdrop = document.getElementById("keyboardBackdrop");
 
   if (!keyboardPanel) {
     return;
   }
 
   keyboardPanel.classList.remove("hidden");
+
+  if (backdrop) {
+    backdrop.classList.remove("hidden");
+  }
+
   document.body.classList.add("keyboard-open");
+
+  // キーボード表示後も、選択中のマスが見える位置へ調整する
+  window.setTimeout(function() {
+    scrollCurrentTargetAboveKeyboard();
+  }, 50);
 }
 
 function hideCustomKeyboard() {
   const keyboardPanel = document.getElementById("keyboardPanel");
+  const backdrop = document.getElementById("keyboardBackdrop");
 
-  if (!keyboardPanel) {
-    return;
+  if (keyboardPanel) {
+    keyboardPanel.classList.add("hidden");
   }
 
-  keyboardPanel.classList.add("hidden");
+  if (backdrop) {
+    backdrop.classList.add("hidden");
+  }
+
   document.body.classList.remove("keyboard-open");
   hideFlickPreview();
 }
 
-function setupKeyboardCloseButton() {
+function setupKeyboardControls() {
   const closeButton = document.getElementById("closeKeyboardButton");
+  const backdrop = document.getElementById("keyboardBackdrop");
 
-  if (!closeButton) {
+  if (closeButton) {
+    closeButton.addEventListener("click", function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      hideCustomKeyboard();
+    });
+
+    closeButton.addEventListener("pointerup", function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      hideCustomKeyboard();
+    });
+  }
+
+  if (backdrop) {
+    backdrop.addEventListener("click", function() {
+      hideCustomKeyboard();
+    });
+  }
+
+  document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+      hideCustomKeyboard();
+    }
+  });
+}
+
+function scrollCurrentTargetAboveKeyboard() {
+  let target = null;
+
+  if (keyboardTarget === "finalWord") {
+    target = finalWordInput;
+  } else if (currentCellPosition) {
+    target = getInputByPosition(
+      currentCellPosition.row,
+      currentCellPosition.col
+    );
+  }
+
+  if (!target) {
     return;
   }
 
-  closeButton.onclick = function() {
-    hideCustomKeyboard();
-  };
+  const keyboardPanel = document.getElementById("keyboardPanel");
+
+  if (!keyboardPanel || keyboardPanel.classList.contains("hidden")) {
+    return;
+  }
+
+  const targetRect = target.getBoundingClientRect();
+  const keyboardRect = keyboardPanel.getBoundingClientRect();
+
+  if (targetRect.bottom > keyboardRect.top - 16) {
+    const amount = targetRect.bottom - keyboardRect.top + 32;
+
+    window.scrollBy({
+      top: amount,
+      behavior: "smooth"
+    });
+  }
 }
 
 // ==============================
@@ -557,9 +626,8 @@ function renderCustomKeyboard() {
     renderFlickKeyboard(keyboard);
   } else {
     renderGridKeyboard(keyboard);
+    renderKeyboardControlRow(keyboard);
   }
-
-  renderKeyboardControlRow(keyboard);
 }
 
 function updateKeyboardModeButtons(mode) {
@@ -593,78 +661,194 @@ function renderFlickKeyboard(keyboard) {
   keysContainer.className = "flick-keys";
 
   FLICK_KEY_GROUPS.forEach(function(group) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "flick-key";
-    button.textContent = group.center;
-    button.setAttribute(
-      "aria-label",
-      `${group.center}${group.left}${group.up}${group.right}${group.down}`
-    );
-
-    button.addEventListener("pointerdown", function(event) {
-      event.preventDefault();
-
-      activeFlickKey = {
-        button: button,
-        group: group,
-        pointerId: event.pointerId,
-        direction: "center"
-      };
-
-      flickStartX = event.clientX;
-      flickStartY = event.clientY;
-
-      button.setPointerCapture(event.pointerId);
-      showFlickPreview(button, group, "center");
-    });
-
-    button.addEventListener("pointermove", function(event) {
-      if (
-        !activeFlickKey ||
-        activeFlickKey.button !== button ||
-        activeFlickKey.pointerId !== event.pointerId
-      ) {
-        return;
-      }
-
-      const direction = getFlickDirection(
-        event.clientX - flickStartX,
-        event.clientY - flickStartY
-      );
-
-      activeFlickKey.direction = direction;
-      showFlickPreview(button, group, direction);
-    });
-
-    button.addEventListener("pointerup", function(event) {
-      if (
-        !activeFlickKey ||
-        activeFlickKey.button !== button ||
-        activeFlickKey.pointerId !== event.pointerId
-      ) {
-        return;
-      }
-
-      const char = group[activeFlickKey.direction];
-
-      hideFlickPreview();
-      activeFlickKey = null;
-
-      if (char) {
-        inputCharacter(char);
-      }
-    });
-
-    button.addEventListener("pointercancel", function() {
-      hideFlickPreview();
-      activeFlickKey = null;
-    });
-
+    const button = createFlickGroupButton(group);
     keysContainer.appendChild(button);
   });
 
+  // スマホ標準の日本語フリックに近い4段目
+  const dakutenButton = createFlickUtilityButton("゛゜", function() {
+    cycleVoicingMark();
+  });
+
+  const longSoundButton = createFlickUtilityButton("ー", function() {
+    inputCharacter("ー");
+  });
+
+  const deleteButton = createFlickUtilityButton("削除", function() {
+    deleteCurrentCharacter();
+  });
+
+  keysContainer.appendChild(dakutenButton);
+  keysContainer.appendChild(longSoundButton);
+  keysContainer.appendChild(deleteButton);
+
   keyboard.appendChild(keysContainer);
+
+  const navigationRow = document.createElement("div");
+  navigationRow.className = "flick-navigation-row";
+
+  navigationRow.appendChild(
+    createControlButton("←", function() {
+      moveCurrentCell(-1);
+    })
+  );
+
+  navigationRow.appendChild(
+    createControlButton("→", function() {
+      moveCurrentCell(1);
+    })
+  );
+
+  keyboard.appendChild(navigationRow);
+}
+
+function createFlickGroupButton(group) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "flick-key";
+  button.textContent = group.center;
+  button.setAttribute(
+    "aria-label",
+    `${group.center}${group.left}${group.up}${group.right}${group.down}`
+  );
+
+  button.addEventListener("pointerdown", function(event) {
+    event.preventDefault();
+
+    activeFlickKey = {
+      button: button,
+      group: group,
+      pointerId: event.pointerId,
+      direction: "center"
+    };
+
+    flickStartX = event.clientX;
+    flickStartY = event.clientY;
+
+    button.setPointerCapture(event.pointerId);
+    showFlickPreview(button, group, "center");
+  });
+
+  button.addEventListener("pointermove", function(event) {
+    if (
+      !activeFlickKey ||
+      activeFlickKey.button !== button ||
+      activeFlickKey.pointerId !== event.pointerId
+    ) {
+      return;
+    }
+
+    const direction = getFlickDirection(
+      event.clientX - flickStartX,
+      event.clientY - flickStartY
+    );
+
+    activeFlickKey.direction = direction;
+    showFlickPreview(button, group, direction);
+  });
+
+  button.addEventListener("pointerup", function(event) {
+    if (
+      !activeFlickKey ||
+      activeFlickKey.button !== button ||
+      activeFlickKey.pointerId !== event.pointerId
+    ) {
+      return;
+    }
+
+    const char = group[activeFlickKey.direction];
+
+    hideFlickPreview();
+    activeFlickKey = null;
+
+    if (char) {
+      inputCharacter(char);
+    }
+  });
+
+  button.addEventListener("pointercancel", function() {
+    hideFlickPreview();
+    activeFlickKey = null;
+  });
+
+  return button;
+}
+
+function createFlickUtilityButton(label, handler) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "flick-key flick-utility-key";
+  button.textContent = label;
+
+  button.addEventListener("click", handler);
+
+  return button;
+}
+
+function cycleVoicingMark() {
+  if (keyboardTarget === "finalWord") {
+    if (!finalWordInput) {
+      return;
+    }
+
+    const chars = Array.from(finalWordInput.value);
+
+    if (chars.length === 0) {
+      return;
+    }
+
+    const lastIndex = chars.length - 1;
+    chars[lastIndex] = getNextVoicedCharacter(chars[lastIndex]);
+    finalWordInput.value = chars.join("");
+    return;
+  }
+
+  if (!currentCellPosition) {
+    return;
+  }
+
+  const input = getInputByPosition(
+    currentCellPosition.row,
+    currentCellPosition.col
+  );
+
+  if (!input || !input.value) {
+    return;
+  }
+
+  input.value = getNextVoicedCharacter(input.value);
+}
+
+function getNextVoicedCharacter(char) {
+  const cycleMap = {
+    カ: "ガ", ガ: "カ",
+    キ: "ギ", ギ: "キ",
+    ク: "グ", グ: "ク",
+    ケ: "ゲ", ゲ: "ケ",
+    コ: "ゴ", ゴ: "コ",
+
+    サ: "ザ", ザ: "サ",
+    シ: "ジ", ジ: "シ",
+    ス: "ズ", ズ: "ス",
+    セ: "ゼ", ゼ: "セ",
+    ソ: "ゾ", ゾ: "ソ",
+
+    タ: "ダ", ダ: "タ",
+    チ: "ヂ", ヂ: "チ",
+    ツ: "ヅ", ヅ: "ツ",
+    テ: "デ", デ: "テ",
+    ト: "ド", ド: "ト",
+
+    ハ: "バ", バ: "パ", パ: "ハ",
+    ヒ: "ビ", ビ: "ピ", ピ: "ヒ",
+    フ: "ブ", ブ: "プ", プ: "フ",
+    ヘ: "ベ", ベ: "ペ", ペ: "ヘ",
+    ホ: "ボ", ボ: "ポ", ポ: "ホ",
+
+    ウ: "ヴ", ヴ: "ウ"
+  };
+
+  return cycleMap[char] || char;
 }
 
 function getFlickDirection(dx, dy) {
