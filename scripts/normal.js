@@ -113,7 +113,9 @@ function renderNormalPuzzle(puzzle) {
 
   renderHints(puzzle);
   setupKeyboardModeButtons();
+  setupKeyboardCloseButton();
   renderCustomKeyboard();
+  hideCustomKeyboard();
   setupUserMemo(puzzle);
   updateActiveClueDisplay();
 }
@@ -1121,53 +1123,3 @@ function checkNormalAnswer(puzzle) {
     message.textContent = "まだ間違いがあります。";
   }
 }
-
-
-// ==============================
-// プレイヤー用メモ
-// ==============================
-function setupNormalMemo(puzzle) {
-  const memo = document.getElementById("userMemo");
-  const clearButton = document.getElementById("clearMemoButton");
-  const status = document.getElementById("memoSaveStatus");
-
-  if (!memo || !clearButton) {
-    return;
-  }
-
-  const memoKey = getNormalMemoKey(puzzle);
-  let saveTimer = null;
-
-  memo.value = localStorage.getItem(memoKey) || "";
-
-  memo.oninput = function() {
-    if (status) {
-      status.textContent = "保存中...";
-    }
-
-    clearTimeout(saveTimer);
-
-    saveTimer = setTimeout(function() {
-      localStorage.setItem(memoKey, memo.value);
-
-      if (status) {
-        status.textContent = "自動保存しました";
-      }
-    }, 300);
-  };
-
-  clearButton.onclick = function() {
-    memo.value = "";
-    localStorage.removeItem(memoKey);
-
-    if (status) {
-      status.textContent = "メモを消去しました";
-    }
-  };
-}
-
-function getNormalMemoKey(puzzle) {
-  const puzzleId = puzzle.id || puzzle.title;
-  return `normalMemo_${puzzle.category}_${puzzleId}`;
-}
-
