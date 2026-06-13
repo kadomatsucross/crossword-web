@@ -30,7 +30,7 @@ const birthday5x5_1 = {
   ],
 
   finalWordHint:
-    "A→B→C→D→Eの順に読むと、最後の答えへの指示が現れます。",
+    "キーワードの指示に従ってください。ヒントは左上です。",
 
   finalWordAnswer: "オメデトウ",
 
